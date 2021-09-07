@@ -1,3 +1,4 @@
+import com.google.gson.Gson;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
@@ -19,29 +20,66 @@ public class SQSExample {
 //        createQueue(sqsClient,"testQueueWithJavaSDK");
 //        listQueues(sqsClient);
 
+//        for (int i = 0; i < 20; i++) {
+//            sendMessage(sqsClient,"https://sqs.eu-central-1.amazonaws.com/438375164028/testQueueWithJavaSDK","message" + i);
+//        }
+
 //        sendMessage(sqsClient,"https://sqs.eu-central-1.amazonaws.com/438375164028/testQueueWithJavaSDK","message1");
 //        sendMessage(sqsClient,"https://sqs.eu-central-1.amazonaws.com/438375164028/testQueueWithJavaSDK","message2");
 //        sendMessage(sqsClient,"https://sqs.eu-central-1.amazonaws.com/438375164028/testQueueWithJavaSDK","message3");
 //        sendMessage(sqsClient,"https://sqs.eu-central-1.amazonaws.com/438375164028/testQueueWithJavaSDK","message4");
 //        sendMessage(sqsClient,"https://sqs.eu-central-1.amazonaws.com/438375164028/testQueueWithJavaSDK","message5");
 //        sendBatchMessages(sqsClient,"https://sqs.eu-central-1.amazonaws.com/438375164028/testQueueWithJavaSDK");
-//        String message ="{" +
-//                "  \"count\": 12," +
-//                "  \"offset\": 34" +
-//                "}";
+        String message ="{" +
+                "  \"count\": 12," +
+                "  \"offset\": 34" +
+                "}";
+        String message1 ="{" +
+                "  \"count\": 56," +
+                "  \"offset\": 78" +
+                "}";
+        String message2 ="{" +
+                "  \"count\": 11," +
+                "  \"offset\": 22" +
+                "}";
+        String message3 ="{" +
+                "  \"count\": 33," +
+                "  \"offset\": 44" +
+                "}";
 //
 //        sendMessage(sqsClient,url,message);
+//        sendMessage(sqsClient,url,message1);
+//        sendMessage(sqsClient,url,message2);
+//        sendMessage(sqsClient,url,message3);
 
 //        for (int i = 0; i < 100; i++) {
 //            sendMessage(sqsClient,url, UUID.randomUUID().toString());
 //        }
 
 
+//        ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
+//                .queueUrl(url)
+//                .maxNumberOfMessages(1)
+//                .build();
+//        List<Message> messageList1 = new ArrayList<>();
+//        for (int i = 0; i < 30; i++) {
+//            messageList1.addAll((sqsClient.receiveMessage(receiveMessageRequest).messages()));
+//        }
+
+//        for (Message mes:messageList1) {
+//            System.out.println(mes.body());
+//        }
+
         List<Message> messageList = receiveMessagesTest(sqsClient, "https://sqs.eu-central-1.amazonaws.com/438375164028/testQueueWithJavaSDK", 10);
 
-        for (Message m : messageList) {
-            System.out.println(m.body());
+        List<String> messageListInString = convertMessagesToStringFormat(messageList);
+
+        for (String string:messageListInString) {
+            System.out.println("new string:"+string);
         }
+//        for (Message m : messageList) {
+//            System.out.println(m.body());
+//        }
 
 
     }
@@ -98,7 +136,6 @@ public class SQSExample {
             sqsClient.sendMessage(SendMessageRequest.builder()
                     .queueUrl(queueUrl)
                     .messageBody(messageBody)
-                    .delaySeconds(10)
                     .build());
             // snippet-end:[sqs.java2.sqs_example.send_message]
             Message message = Message.builder()
@@ -176,7 +213,7 @@ public class SQSExample {
 
                 //   System.out.println("    Body:          " + message.getBody());
                 messagelist.addAll(messages);
-                deleteMessages(sqsClient,queueUrl,messages);
+//                deleteMessages(sqsClient,queueUrl,messages);
                 if (messages.size() == 0) {
                     flag = false;
                 }
@@ -187,6 +224,16 @@ public class SQSExample {
         } finally {
             return messagelist;
         }
+    }
+
+    public static List<String> convertMessagesToStringFormat(List<Message> messageList)
+    {
+        List<String> stringList = new ArrayList<>();
+
+        for (Message message:messageList) {
+            stringList.add(message.body());
+        }
+        return stringList;
     }
 
     public static void deleteMessages(SqsClient sqsClient, String queueUrl, List<Message> messages) {
